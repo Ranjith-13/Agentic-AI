@@ -123,6 +123,8 @@ Diagram saved to diagram.md
 JPG saved to diagram.jpg
 ```
 
+![Example generated diagram](./diagram.jpg)
+
 ---
 
 ## 🛠️ How It Works Internally
