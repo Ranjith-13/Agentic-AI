@@ -1,119 +1,101 @@
-# 🧠 CodeSketch AI Agent
+# CodeSketch AI Agent
 
-Convert any Python code into **automatic architecture diagrams** using **Azure OpenAI + Mermaid + Graphviz (JPG output)**.
-
-This agent reads Python code, understands its classes/functions, and generates:
-
-* ✔️ Mermaid architecture diagram (`diagram.md`)
-* ✔️ Auto-rendered JPG diagram using Graphviz (`diagram.jpg`)
-
-Perfect for:
-* Understanding internal code flow
-* Quick architecture documentation
-* Demonstrating agentic AI with tool-use
+An autonomous architecture visualization agent that extracts class hierarchies, dependencies, and execution flows from Python source code, synthesizes Mermaid definitions, and renders production-ready architecture diagrams via Graphviz.
 
 ---
 
-## 🚀 Features
+## Capabilities
 
-### ✅ Core Agent Capabilities
-
-* Reads Python code
-* Extracts structure, classes, methods, relationships
-* Generates clean Mermaid diagrams
-* Converts Mermaid → JPG automatically
-* Fully autonomous pipeline
-
-### ✅ Demonstrates Agentic AI Principles
-
-* **Agent Structure:** LLM + Planning + Tools
-* **Tool Use:** Local filesystem, Graphviz
-* **Task Breakdown:** Code → Diagram Prompt → Mermaid → JPG → Save
-* **Autonomy:** No manual steps required
+- **Code Structure Parsing:** Ingests Python modules and analyzes relationships, class contracts, and function calls.
+- **Mermaid Diagram Synthesis:** Prompts Azure OpenAI to construct strict Mermaid class and sequence definitions.
+- **Automated Image Rendering:** Converts Mermaid definitions into raster JPG diagrams using Graphviz.
+- **Zero-Manual Execution:** Fully autonomous pipeline from code ingestion to persisted image artifacts.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
-```
-mermaid_diagram_generator/
-│
-├── agent_llm.py            # Azure OpenAI wrapper
-├── code_parser.py          # Code reader
-├── diagram_generator.py    # Prompt + Mermaid builder
-├── utils.py                # Save helpers + Graphviz converter
-├── main.py                 # Main agent runner
-├── sample_code.py          # Sample input code
-├── requirements.txt
-└── README.md
+```text
+codesketch-agent/
+├── agent_llm.py            # Azure OpenAI client wrapper
+├── code_parser.py          # AST and code structure reader
+├── diagram_generator.py    # Prompt builder and Mermaid synthesizer
+├── utils.py                # Graphviz converter and persistence helpers
+├── main.py                 # Agent CLI entrypoint
+├── sample_code.py          # Reference input code
+├── requirements.txt        # Dependencies
+└── README.md               # Documentation
 ```
 
 ---
 
-## 🔧 Installation & Setup
+## Pipeline Workflow
 
-### 1️⃣ Create and activate a virtual environment
+```text
+Python Source Code ──► LLM Structural Reasoning ──► Mermaid Markup ──► Graphviz Rendering ──► JPG Image
+```
 
+1. **Code Extraction:** `code_parser.py` loads and prepares the source code.
+2. **LLM Synthesis:** `diagram_generator.py` instructs Azure OpenAI to build structural diagrams representing classes, interfaces, and associations.
+3. **Rendering & Export:** `utils.py` interfaces with Graphviz to produce both `diagram.md` (raw Mermaid) and `diagram.jpg` (rendered image).
+
+---
+
+## Output Example
+
+![Generated Architecture Diagram](./diagram.jpg)
+
+Generated Mermaid definition:
+```mermaid
+classDiagram
+    Main --> UserService : creates instance
+    UserService --> Database : uses
+```
+
+---
+
+## Installation & Setup
+
+### 1. Virtual Environment
 ```bash
 python -m venv .venv
-source .venv/bin/activate   # Mac/Linux
-.venv\Scripts\activate      # Windows
+source .venv/bin/activate  # macOS/Linux
+.venv\Scripts\activate     # Windows
 ```
 
-### 2️⃣ Install dependencies
-
+### 2. Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Install Graphviz (required for JPG output)
+### 3. Graphviz System Tool
+Graphviz is required for raster JPG rendering:
+- **Windows:** Download from [graphviz.org](https://graphviz.org/download/) and add `C:\Program Files\Graphviz\bin` to PATH.
+- **macOS:** `brew install graphviz`
+- **Linux:** `sudo apt install graphviz`
 
-#### Windows:
+### 4. Environment Variables
+Create a `.env` file in this directory:
 
-Download from [https://graphviz.org/download/](https://graphviz.org/download/)
-Add to PATH:
-
-```
-C:\Program Files\Graphviz\bin
-```
-
-#### Mac:
-
-```bash
-brew install graphviz
-```
-
-#### Linux:
-
-```bash
-sudo apt install graphviz
-```
-
-### 4️⃣ Create your `.env`
-
-```
-AZURE_OPENAI_ENDPOINT=https://YOUR-ENDPOINT.openai.azure.com/
-AZURE_OPENAI_API_KEY=YOUR-KEY
+```env
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_API_KEY=your_key
 AZURE_OPENAI_API_VERSION=2024-12-01-preview
-AZURE_OPENAI_DEPLOYMENT=YOUR-DEPLOYMENT-NAME
+AZURE_OPENAI_DEPLOYMENT=your_model_name
 ```
 
 ---
 
-## ▶️ Run the Agent
+## Usage
+
+Run the agent against a Python file:
 
 ```bash
 python main.py sample_code.py
 ```
 
-You will get:
-
-* `diagram.md` → Mermaid diagram
-* `diagram.jpg` → Rendered diagram
-
-Example output:
-
-```
+Console output:
+```text
 ===== GENERATED DIAGRAM =====
 classDiagram
     Main --> UserService : creates instance
@@ -122,56 +104,3 @@ classDiagram
 Diagram saved to diagram.md
 JPG saved to diagram.jpg
 ```
-
-![Example generated diagram](./diagram.jpg)
-
----
-
-## 🛠️ How It Works Internally
-
-### 1. **Code Loading**
-
-`code_parser.py` reads your `.py` file.
-
-### 2. **LLM Processing**
-
-`agent_llm.py` sends your code + prompt to Azure OpenAI.
-
-### 3. **Mermaid Generation**
-
-`diagram_generator.py` builds a clean class/flow/sequence diagram.
-
-### 4. **JPG Conversion**
-
-`utils.py` converts Mermaid → SVG → JPG using Graphviz.
-
-Workflow:
-
-```
-Python Code → LLM → Mermaid → Graphviz → JPG
-```
----
-
-### ✔️ Clear Agent Structure
-
-* LLM ➝ Prompt ➝ Diagram generation ➝ Rendering tool
-
-### ✔️ Tool Interaction
-
-* Azure OpenAI API
-* Graphviz system tool
-* Local filesystem
-
-### ✔️ Autonomous Behavior
-
-The agent completes the entire pipeline with zero manual prompts.
-
----
-
-## This project demonstrates: 
-
-* Understanding of agentic task decomposition
-* Tool usage
-* Secure API handling
-* LLM-based reasoning applied to real code
-* Output generation (MD + JPG)

@@ -1,174 +1,101 @@
-# 🐞 Bug Analyzer Agent (Azure OpenAI)
+# Bug Analyzer Agent
 
-A fully autonomous **AI-powered bug detection agent** that reads Python source code, identifies bugs/vulnerabilities, explains them, and produces corrected code — all powered using **Azure OpenAI**.
-
-This agent demonstrates:
-
-* ✔️ Agent structure
-* ✔️ Tool/API interaction
-* ✔️ Autonomous reasoning & task completion
-* ✔️ Secure environment-based LLM configuration
+An autonomous AI-powered code auditing agent that reads Python source files, identifies security vulnerabilities and logic bugs, explains their impact, and synthesizes corrected code using Azure OpenAI.
 
 ---
 
-## 🚀 What This Agent Does
+## Capabilities
 
-Given any Python file, the agent:
+Given a target Python source file, the agent executes an end-to-end audit lifecycle:
 
-1. **Loads and reads the file** (via `file_tool.py`)
-2. **Sends code to Azure OpenAI** (via `AgentLLM`)
-3. **Detects bugs, errors, and vulnerabilities**
-4. **Mentions line numbers for each issue**
-5. **Provides corrected code suggestions**
-6. **Outputs a clean Markdown report**
-7. **Saves it to `<filename>_analysis.md`**
-
-It is ideal for:
-
-* Code reviews
-* Automated QA
-* Developer onboarding
-* Demonstrating agentic autonomy
+1. **Loads and parses source code:** Ingests local files via `file_tool.py`.
+2. **Performs static reasoning:** Inspects logic bugs, anti-patterns, missing return values, and dangerous function calls (`eval`, `exec`).
+3. **Generates line-referenced diagnostics:** Flags precise line numbers and describes exploit risks or execution failures.
+4. **Synthesizes corrected implementations:** Generates drop-in replacement snippets.
+5. **Compiles Markdown report:** Writes structured audit documentation directly to `<filename>_analysis.md`.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
-```
-bug-analyzer-agent/
-│
-├── agent_llm.py        # Azure OpenAI wrapper
-├── bug_analyzer.py     # Bug analysis logic (agent)
-├── file_tool.py        # Code loader utility
-├── utils.py            # Output writer
+```text
+bug-finder-agent/
+├── agent_llm.py        # Azure OpenAI client wrapper
+├── bug_analyzer.py     # Core bug analysis agent logic
+├── file_tool.py        # Code ingestion utility
+├── utils.py            # Report persistence helper
 ├── main.py             # CLI runner
-├── sample_code.py      # Example buggy code
-├── requirements.txt    # Dependencies
-└── README.md           # This file
+├── sample_code.py      # Example test fixture with known bugs
+├── requirements.txt    # Python dependencies
+└── README.md           # Documentation
 ```
 
 ---
 
-## 🧠 How the Agent Works Internally
+## Agent Architecture & Lifecycle
 
-### 1️⃣ Perception — Code Loader
+The agent follows a 4-stage autonomous flow:
 
-Reads the Python target file:
-
-```python
-code = load_file(path)
+```text
+[ Perception ]           [ Reasoning ]             [ Action ]               [ Tool Use ]
+Source Code Loader ──► LLM Code Analysis ──► Markdown Compilation ──► File Persistence
 ```
 
-### 2️⃣ Reasoning — Bug Detection
-
-The LLM processes:
-
-* logic bugs
-* security issues
-* incorrect patterns
-* Python anti-patterns
-* missing returns
-* dangerous functions (`eval`, `exec`, etc.)
-
-### 3️⃣ Action — Markdown Report Generation
-
-LLM produces:
-
-* Bug descriptions
-* Impact
-* Corrected code blocks
-* Line number references
-
-### 4️⃣ Tool Use — Saving Report
-
-```python
-save_output(result, "sample_code.py_analysis.md")
-```
+1. **Perception:** Reads and validates the target source file.
+2. **Reasoning:** Prompts Azure OpenAI with an analytical rubric covering syntax, logic, security, and edge cases.
+3. **Action:** Formats findings into standardized Markdown tables and corrected code blocks.
+4. **Tool Use:** Calls local file tools to save the resulting audit report.
 
 ---
 
-## 🔧 Installation & Setup
+## Installation & Setup
 
-### 1️⃣ Create & activate venv
-
+### 1. Virtual Environment
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # mac/linux
-.venv\Scripts\activate     # windows
+source .venv/bin/activate  # On macOS/Linux
+.venv\Scripts\activate     # On Windows
 ```
 
-### 2️⃣ Install dependencies
-
+### 2. Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Add your Azure OpenAI credentials in `.env`
+### 3. Environment Configuration
+Create a `.env` file in this directory:
 
-```
+```env
 AZURE_OPENAI_API_KEY=your_key
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
 AZURE_OPENAI_API_VERSION=2024-12-01-preview
 AZURE_OPENAI_DEPLOYMENT=your_model_name
 ```
 
-> ⚠️ Never commit `.env` to Git.
-
 ---
 
-## ▶️ Running the Agent
+## Usage
 
-To analyze a file:
+Analyze any Python file by passing its path as a CLI argument:
 
 ```bash
 python main.py sample_code.py
 ```
 
-You will see:
-
-```
+Console output:
+```text
 ===== ANALYSIS REPORT =====
 # Code Audit Report
-...bugs listed...
+[Detailed audit findings with line numbers and remediations]
 Saved output to sample_code.py_analysis.md
 ```
 
-The full analysis will be saved automatically.
-
 ---
 
-## 📌 Why this use-case :
+## Included Sample Fixture
 
-### ✔️ 1. Agent Structure Demonstrated
-
-* LLM wrapper (`AgentLLM`)
-* Core task logic (`BugAnalyzerAgent`)
-* Tools: file loader + writer
-* Execution pipeline in `main.py`
-
-### ✔️ 2. Tool/API Interaction
-
-* Azure OpenAI API
-* Local filesystem (read/write)
-
-### ✔️ 3. Autonomous Task Breakdown
-
-The agent completes:
-
-* Read → Analyze → Generate fixes → Save report
-  With zero human involvement.
-
----
-
-## 🧪 Included Example Input
-
-`sample_code.py` contains:
-
-* division-by-zero risk
-* mutable default argument
-* unsafe `eval`
-* missing return
-
-These issues help show the agent’s capabilities.
-
----
+`sample_code.py` contains deliberate reference bugs for testing:
+- Division-by-zero vulnerability
+- Mutable default arguments (`def append_to(element, target=[])`)
+- Unsafe `eval` invocation
+- Incomplete conditional branches with missing returns

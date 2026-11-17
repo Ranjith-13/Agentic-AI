@@ -1,120 +1,80 @@
-# 🧪 Test Case Generator Agent (Azure OpenAI)
+# Test Case Generator Agent
 
-An autonomous **AI-powered test case generation agent** that reads Python source code, analyzes its functions and behaviors, and produces:
-
-* ✔️ A complete **test plan** (Markdown)
-* ✔️ A fully runnable **pytest test file**
-* ✔️ Follows strict JSON formatting rules
-* ✔️ Uses Azure OpenAI for reasoning
-
-This agent is ideal for:
-* Automated QA
-* Increasing test coverage
-* Code reliability improvements
-* Developers who want instant tests for new functions
+An autonomous test generation agent that parses Python source code, derives comprehensive test plans, and synthesizes runnable `pytest` test suites enforcing strict JSON schema constraints via Azure OpenAI.
 
 ---
 
-## 🚀 What the Agent Does
+## Capabilities
 
-For any Python file, the agent:
-
-1. **Reads the file** (`file_tool.py`)
-2. **Understands functions, parameters, edge cases**
-3. **Generates a complete test plan** (Markdown)
-4. **Generates a pytest test file** (unit + boundary + negative cases)
-5. **Outputs valid JSON only** (strict validation)
-6. **Automatically saves both files**
-
-Output files:
-
-* `sample_code.py_test_plan.md`
-* `test_sample_code.py`
+- **Automated Behavioral Analysis:** Evaluates parameter boundaries, return contracts, exceptions, and failure modes.
+- **Structured Test Planning:** Compiles a dedicated Markdown test plan document detailing positive, negative, and edge case coverage.
+- **Runnable Pytest Synthesis:** Produces a ready-to-run `pytest` test file matching production testing conventions.
+- **Schema Enforcement:** Validates model completions against strict JSON schemas before saving artifacts.
 
 ---
 
-## 📁 Project Structure
+## Output Artifacts
 
-```
+Running the agent against `sample_code.py` produces two deliverables:
+- `<filename>_test_plan.md`: Comprehensive test strategy, test matrix, and expected assertions.
+- `test_<filename>.py`: Python test script containing fully formed `pytest` test functions.
+
+---
+
+## Project Structure
+
+```text
 test-case-generator/
-│
-├── test_case_agent.py      # Core agent (LLM-powered test generation)
-├── main.py                 # Runner script
-├── file_tool.py            # File loading & saving
-├── utils.py                # Filename sanitizer
+├── test_case_agent.py      # Core agent logic and JSON schema validation
+├── file_tool.py            # Local filesystem handlers
+├── utils.py                # Filename and path sanitizers
+├── main.py                 # CLI entrypoint
 ├── sample_code.py          # Input example
-├── test_sample_code.py     # (Generated output)
+├── test_sample_code.py     # Generated output test suite
 ├── requirements.txt        # Dependencies
-└── README.md
+└── README.md               # Documentation
 ```
 
 ---
 
-## 🧠 How the Agent Works Internally
+## Architecture Lifecycle
 
-### 1️⃣ Perception Layer — Reading Code
-
-The agent loads the Python source file using `read_file`.
-
-### 2️⃣ Reasoning Layer — LLM Processing
-
-LLM extracts:
-
-* Function names
-* Arguments
-* Behaviors
-* Conditions
-* Failure modes
-* Edge cases
-
-### 3️⃣ Planning Layer — Test Strategies
-
-The agent plans:
-
-* Positive tests
-* Negative tests
-* Boundary tests
-* Error handling tests
-* Mocking strategy (if applicable)
-
-### 4️⃣ Action Layer — JSON Response
-
-Azure OpenAI must return **strict JSON**:
-
-```
-{
-  "test_plan": "markdown content",
-  "test_file": "pytest content"
-}
+```text
+[ Input ]                 [ Reasoning ]              [ Validation ]            [ Tool Action ]
+Python Source Code ──► LLM Test Synthesis ──► Strict JSON Schema Check ──► Persist Plan & Test Suite
 ```
 
-The agent validates it using Python's `json` module.
-
-### 5️⃣ Tool Use — Saving Files
-
-Files are automatically written using `save_text`.
+1. **Perception:** Reads and tokenizes the target Python script.
+2. **Reasoning & Planning:** The LLM devises test strategies for boundary values, null inputs, type errors, and expected exceptions.
+3. **Validation:** Verifies the model returned valid JSON conforming to:
+   ```json
+   {
+     "test_plan": "Markdown string describing test scenarios",
+     "test_file": "Executable pytest Python code"
+   }
+   ```
+4. **Tool Execution:** Automatically writes the validated test plan and pytest test file to disk.
 
 ---
 
-## 🔧 Installation & Setup
+## Installation & Setup
 
-### 1️⃣ Create and activate the virtual environment
-
+### 1. Virtual Environment
 ```bash
-python -m venv venv
-source venv/bin/activate       # Mac/Linux
-venv\Scripts\activate          # Windows
+python -m venv .venv
+source .venv/bin/activate  # macOS/Linux
+.venv\Scripts\activate     # Windows
 ```
 
-### 2️⃣ Install dependencies
-
+### 2. Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Configure Azure OpenAI in `.env`
+### 3. Environment Variables
+Create a `.env` file in this directory:
 
-```
+```env
 AZURE_OPENAI_API_KEY=your_key
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
 AZURE_OPENAI_API_VERSION=2024-12-01-preview
@@ -123,72 +83,33 @@ AZURE_OPENAI_DEPLOYMENT=your_model_name
 
 ---
 
-## ▶️ Running the Agent
+## Usage
 
-To process `sample_code.py`:
+Generate tests for a target Python file:
 
 ```bash
 python main.py sample_code.py
 ```
 
-You will see:
+Console output:
+```text
+Generating test cases...
+Saved: sample_code.py_test_plan.md
+Saved: test_sample_code.py
 
-```
-⏳ Generating test cases...
-Saved → sample_code.py_test_plan.md
-Saved → test_sample_code.py
-
-✅ Test Case Generation Complete!
-```
-
-Both output files will be available.
-
----
-
-## 📌 Why this use-case:
-
-### ✔️ 1. **Agent Structure**
-
-* LLM wrapper (`TestCaseGeneratorAgent`)
-* Tools for reading/saving files
-* Execution orchestrator (`main.py`)
-
-### ✔️ 2. **Tool/API Interaction**
-
-* Azure OpenAI (LLM)
-* Local file system
-
-### ✔️ 3. **Autonomous Task Completion**
-
-The agent performs:
-
-```
-read → analyze → generate plan → generate tests → save → done
+Test Case Generation Complete.
 ```
 
-Zero human intervention.
-
----
-
-## 🧪 Example Input Functions
-
-From `sample_code.py`:
-
-* `divide(a, b)`
-* `is_valid_age(age)`
-* `greet(name)`
-
-The agent generates:
-
-* Edge-case coverage
-* Exception tests
-* Type/validation tests
-
-Example generated tests include:
-
-```python
-with pytest.raises(ZeroDivisionError):
-    divide(10, 0)
+Execute the generated test suite:
+```bash
+pytest test_sample_code.py -v
 ```
 
 ---
+
+## Example Test Coverage
+
+The included fixture `sample_code.py` tests multiple function behaviors:
+- `divide(a, b)`: Valid quotients and `pytest.raises(ZeroDivisionError)` assertions.
+- `is_valid_age(age)`: Range boundaries (0, 18, 120), negative ages, and type validation.
+- `greet(name)`: String formatting, whitespace stripping, and empty string fallbacks.
